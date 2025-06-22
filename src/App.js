@@ -18,13 +18,14 @@ const App = () => {
 
     // IMPORTANT: Define your backend URL here.
     // This MUST match the public URL of your deployed Node.js backend on Render.com.
-    const BACKEND_URL = 'https://voice-ai-backend-euw9.onrender.com/'; // REPLACE WITH YOUR RENDER.COM BACKEND URL
+    const BACKEND_URL = 'https://your-backend-name.onrender.com'; // REPLACE WITH YOUR RENDER.COM BACKEND URL
 
     // --- Media Capture Functions ---
 
     // Effect hook to request display media (tab/window audio) access on component mount
     useEffect(() => {
         const getDisplayMediaAudio = async () => {
+            // Removed 'if (!user)' check as authentication is no longer active
             try {
                 // Request access to display media (specifically audio from a tab/window).
                 // This will prompt the user to select a screen, window, or browser tab to share.
@@ -38,11 +39,12 @@ const App = () => {
                 if (err.name === 'NotAllowedError' && err.message.includes('permissions policy')) {
                     setStatusMessage('Tab/Window audio capture is blocked by browser permissions policy. Try running this app in a standalone browser tab.');
                 } else if (err.name === 'NotAllowedError') {
-                    setStatusMessage('Tab/Window audio capture denied. Please allow access in browser settings.');
+                    setStatusMessage('Tab/Window audio capture denied. Please allow access in browser settings (click lock icon in address bar).');
                 } else if (err.name === 'NotFoundError') {
                     setStatusMessage('No suitable audio source found. Ensure a tab/window is available for capture.');
+                } else {
+                    setStatusMessage('Failed to get audio stream. See browser console (F12) for details.');
                 }
-                setStatusMessage('Failed to get audio stream. See console for details.');
             }
         };
 
@@ -52,21 +54,27 @@ const App = () => {
         return () => {
             if (audioStreamRef.current) {
                 audioStreamRef.current.getTracks().forEach(track => track.stop());
+                audioStreamRef.current = null; // Ensure ref is cleared
             }
         };
-    }, []); // Empty dependency array means this effect runs once on mount
+    }, []); // Empty dependency array: runs once on mount, as there's no 'user' state to trigger re-runs
 
     // Function to start audio recording
     const startRecording = async () => {
+        // Removed 'if (!user)' check as authentication is no longer active
         if (!audioStreamRef.current) {
-            setStatusMessage('Audio stream not available. Please allow access to capture tab audio or ensure permissions are granted.');
-            // Attempt to re-request media stream if it's somehow lost
+            setStatusMessage('Audio stream not available. Attempting to re-acquire...');
+            // Attempt to re-request media stream if it's somehow lost after initial load
             try {
                 const stream = await navigator.mediaDevices.getDisplayMedia({ audio: true, video: false });
                 audioStreamRef.current = stream;
+                if (!audioStreamRef.current) { // Check again if stream was successfully acquired
+                    setStatusMessage("Cannot start recording: Still no audio stream available after re-attempt. Check browser permissions.");
+                    return;
+                }
             } catch (err) {
                 console.error("Failed to re-acquire stream:", err);
-                setStatusMessage("Cannot start recording: No audio stream available.");
+                setStatusMessage("Cannot start recording: Failed to acquire audio stream. Check browser console.");
                 return;
             }
         }
@@ -137,7 +145,6 @@ const App = () => {
             const sttResponse = await fetch(`${BACKEND_URL}/api/stt`, {
                 method: 'POST',
                 body: formData,
-                // No Authorization header needed as authentication is removed
             });
 
             if (!sttResponse.ok) {
@@ -181,7 +188,6 @@ const App = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    // No Authorization header needed as authentication is removed
                 },
                 body: JSON.stringify({ question: questionToSend }),
             });
