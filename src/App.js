@@ -18,7 +18,7 @@ const App = () => {
 
     // IMPORTANT: Define your backend URL here.
     // This MUST match the public URL of your deployed Node.js backend on Render.com.
-    const BACKEND_URL = 'https://your-backend-name.onrender.com'; // REPLACE WITH YOUR RENDER.COM BACKEND URL
+    const BACKEND_URL = 'https://voice-ai-backend-euw9.onrender.com'; // REPLACE WITH YOUR RENDER.COM BACKEND URL
 
     // --- Media Capture Functions ---
 
