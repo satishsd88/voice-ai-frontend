@@ -1,0 +1,23 @@
+/* frontend/src/index.css */
+
+/* Tailwind CSS directives - these are crucial for Tailwind to work */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Basic body styles for good measure, often included by create-react-app */
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
+/* You can add any other global styles here if needed */
